@@ -15,11 +15,12 @@ app.use(express.urlencoded({extended:false}))
 
 const router = require('./routes/index');
 
-
-
 app.use(router);
 
-const server = app.listen(4000 ,()=>{
+const PORT = process.env.PORT || 4000
+
+
+const server = app.listen(PORT || 4000 ,()=>{
 
     console.log("listning at port 4000");
 })
