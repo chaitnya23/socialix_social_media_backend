@@ -16,7 +16,7 @@ const verify = async (req, res, next) => {
         const verifyToken = jwt.verify(token, "chaitnyagiriprojectsocialix2306@jwtkey");
 
         const rootUser = await User.findOne({ userName: verifyToken.userName }, { password:0 })
-            .populate("friends Requests SavedPosts");
+            // .populate("friends Requests SavedPosts");
 
         if (!rootUser) {
             throw new Error("authentication problem .....");
