@@ -52,7 +52,7 @@ const post = {
         try {
             
             
-            const {user_id ,description ,image,tags} = req.body;
+            const {user_id ,description ,image,tags,location} = req.body;
 
             const user = await User.findOne({
                 _id:user_id
@@ -62,6 +62,7 @@ const post = {
                 user,
                 description,
                 image,
+                location,
                 tags
             })
 
