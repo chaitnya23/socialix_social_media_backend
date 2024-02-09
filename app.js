@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const createSocketIoConnection = require('./socketIo/socket');
+const router = require('./routes/index');
 
 //database connection
 const dbConnection = require('./database/connection');
@@ -13,7 +14,6 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended:false}))
 
-const router = require('./routes/index');
 
 app.use(router);
 

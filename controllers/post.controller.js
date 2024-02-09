@@ -7,13 +7,25 @@ const post = {
 
         try {
             
-            const posts = await Post.find({}).populate('user Likes' ,{password:0}).sort({createdAt:-1});
+            const posts = await Post.find({}).populate('user' ,{password:0}).sort({createdAt:-1});
 
             res.status(200).send(posts);
         } catch (error) {
             
-            console.log("error in getting posts");
             res.status(404).send(error.message);
+        }
+    },
+    
+    async getPopularPosts(req,res){
+
+        try { 
+             
+            const posts = await Post.find({}).sort({Likes:-1}).populate('user');
+            res.status(200).send(posts);
+
+        } catch (error) {
+            
+            res.status(402).send("error to get popular posts",error);
         }
     },
 
@@ -40,7 +52,7 @@ const post = {
         try {
             
             
-            const {user_id ,description ,image} = req.body;
+            const {user_id ,description ,image,tags} = req.body;
 
             const user = await User.findOne({
                 _id:user_id
@@ -49,7 +61,8 @@ const post = {
             const newPost = await Post.create({
                 user,
                 description,
-                image
+                image,
+                tags
             })
 
             const post = await Post.findOne({_id:newPost._id}).populate('comments.user user Likes' ,{password:0 ,friends:0 ,Posts:0 ,SavedPosts:0});
@@ -96,7 +109,6 @@ const post = {
     async addComment(req ,res){
 
         const {user_id ,post_id ,comment} = req.body;
-
         
         const user = await User.findOne({
             _id:user_id
@@ -130,6 +142,24 @@ const post = {
             })
         }
     } ,
+
+    async getComments(req,res){
+
+        const {post_id} = req.params;
+        try {
+            
+            const post = await Post.findOne({_id:post_id}).populate({path: 'comments',
+            populate: {
+              path: 'user'
+            }}).sort({createdAt:-1});
+            
+            res.status(200).send(post.comments);
+        } catch (error) {
+            
+            console.log("error in getting posts");
+            res.status(404).send(error.message);
+        }
+    },
 
     async addLike(req ,res){
 
@@ -165,6 +195,7 @@ const post = {
     async removeLike(req ,res){
 
         const {user_id ,post_id} = req.body;
+        
         try {
 
             const user = await User.findOne({
@@ -197,6 +228,7 @@ const post = {
     async savePost (req ,res){
 
         const {user_id ,post_id} = req.body;
+        console.log("post saving");
 
         try {
             const post = await Post.findOne({
@@ -224,7 +256,38 @@ const post = {
                 error:error.message
             })
         }
+    },
+
+    async unsavePost (req ,res){
+
+        const {user_id ,post_id} = req.body;
+
+        try {
+
+            const update = await User.updateOne({
+                _id:user_id
+            },{
+                $pull:{
+                    SavedPosts:post_id
+                }
+            })
+
+            res.status(200).json({
+                status:"success",
+                message:"unsaved a post "
+            })
+            
+        } catch (error) {
+            
+            res.status(402).json({
+                status:"failure",
+                message:"saving a post (failed)",
+                error:error.message
+            })
+        }
     }
+
+
 }
 
 module.exports = post;

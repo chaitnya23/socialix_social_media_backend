@@ -5,6 +5,7 @@ const request = {
   async make(req, res) {
     try {
       const { person_id, user_id } = req.body;
+      console.log(req.body);
 
       const person = await User.findOne({
         _id:user_id,
@@ -29,6 +30,23 @@ const request = {
       res.status(402).send(error.message);
     }
   },
+
+  async getUserRequests(req, res) {
+    try {
+
+        const { id } = req.params;
+
+        const user = await User.findOne({
+            _id: id
+        } ,{password:0}).populate(`Requests`);
+       
+        res.status(200).send(user.Requests);
+
+    } catch (error) {
+
+        res.status(403).send(error);
+    }
+},
 
   async accept(req, res) {
     try {

@@ -6,10 +6,10 @@ const verify = async (req, res, next) => {
 
     try {
 
-
-        const token = req.cookies.socialix;
+        const {token} = req.params;
         if (!token) {
-            throw new Error("token wont exists!!");
+            // throw new Error("token wont exists!!");
+            res.status(401).send("token not found");
             return;
         }
 
