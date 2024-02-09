@@ -41,16 +41,23 @@ const auth = {
 
     async signup(req, res) {
 
-        console.log(req.body);
+        
         try {
             const { name, userName, password, imgUrl } = req.body;
 
+            const userExists = await User.findOne({userName});
+           
+            if(userExists){
+                res.status(401).send({message:"oops this user name already exists.."});
+                return;
+            }
             const created_user = await User.create({
                 name,
                 userName: userName,
                 profilePic: imgUrl,
                 password
             })
+
 
             const token = await createToken(userName);
             res.cookie("socialix", token, {
