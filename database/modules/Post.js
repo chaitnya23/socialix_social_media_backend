@@ -34,7 +34,7 @@ const postSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            timestamps: Date
+            timestamp: Date
         }
     ]
 }, { timestamps: true })

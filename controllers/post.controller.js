@@ -36,7 +36,7 @@ const post = {
         try {
             
             const post = await Post.findOne({_id:id})
-            .populate('comments.user user Likes' ,{password:0 ,friends:0 ,Posts:0 ,SavedPosts:0})
+            .populate('comments.user user' ,{password:0 ,friends:0 ,Posts:0 ,SavedPosts:0})
             .sort({"comments.createdAt":-1});
 
             res.status(200).send(post);
@@ -117,19 +117,22 @@ const post = {
 
         try {
 
-            const status = await Post.updateOne({
+            const updatedPost = await Post.findOneAndUpdate({
                 _id:post_id
             } ,{
                 $push:{
                     comments:{
                         user,
-                        comment
+                        comment,
+                        timestamp:new Date()
                     }
                 }
-            })
+            },  { new: true } ).populate("user")
 
+           
             res.status(200).send({
                 user,
+                post:updatedPost,
                 comment
             });
 
@@ -149,12 +152,15 @@ const post = {
         const {post_id} = req.params;
         try {
             
-            const post = await Post.findOne({_id:post_id}).populate({path: 'comments',
-            populate: {
-              path: 'user'
-            }}).sort({createdAt:-1});
+            const post = await Post.findOne({_id:post_id}).populate({
+                path: 'comments',
+                populate: {
+                  path: 'user'
+                },
+                options: { sort: { timestamp: -1 } } 
+              });
             
-            res.status(200).send(post.comments);
+            res.status(200).send(post.comments.sort((a, b) => b.timestamp - a.timestamp));
         } catch (error) {
             
             console.log("error in getting posts");
@@ -164,8 +170,8 @@ const post = {
 
     async addLike(req ,res){
 
-        
-        const {user_id ,post_id} = req.body;
+        const {user_id,post_id}=req.body;
+
 
         try {
             const user = await User.findOne({
